@@ -18,10 +18,18 @@ namespace WeatherDashboard.Pages
     {
 
         public coordinatesResponse coordsRes { get; set; }
+        
+        public gridResponse gridRes { get; set; }
+
+        public forecastResponse forecastRes { get; set; }
+        public forecastResponse hourlyRes { get; set; }
 
         public async Task OnGetAsync()
         {
             await GetGrid(0, 0);
+            await GetWeather();
+            await GetForecastHourly();
+            await GetForecast();
         }
 
         public async Task GetGrid(float lat, float lon)
@@ -34,7 +42,7 @@ namespace WeatherDashboard.Pages
                 Headers = {
                     { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
                     { "Authority", "api.weather.gov"},
-                    { "User-Agent", "hamrzysko+at+gmail.com" }
+                    { "User-Agent", "hamrzysko%40gmail.com" }
                 }
             };
             using (var response = await client.SendAsync(request))
@@ -46,10 +54,80 @@ namespace WeatherDashboard.Pages
             }
 
         }
-
+    
+        // get grid must be run before GetWeather can be used
         public async Task GetWeather()
         {
+            if (coordsRes == null)
+                return;
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(coordsRes.properties.forecastGridData),
+                Headers = {
+                    { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
+                    { "Authority", "api.weather.gov"},
+                    { "User-Agent", "hamrzysko%40gmail.com" }
+                }
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var myJObject = JsonConvert.DeserializeObject<gridResponse>(body);
+                this.gridRes = (myJObject);
+            }
+        }
+        
+        // gets hourly forecast data based on coords res response
+        public async Task GetForecastHourly()
+        {
+            if (coordsRes == null)
+                return;
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(coordsRes.properties.forecastHourly + "?units=us"),
+                Headers = {
+                    { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
+                    { "Authority", "api.weather.gov"},
+                    { "User-Agent", "hamrzysko%40gmail.com" }
+                }
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var myJObject = JsonConvert.DeserializeObject<forecastResponse>(body);
+                this.hourlyRes = (myJObject);
+            }
+        }
 
+        // gets hourly forecast data based on coords res response
+        public async Task GetForecast()
+        {
+            if (coordsRes == null)
+                return;
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(coordsRes.properties.forecast + "?units=us"),
+                Headers = {
+                    { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
+                    { "Authority", "api.weather.gov"},
+                    { "User-Agent", "hamrzysko%40gmail.com" }
+                }
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var myJObject = JsonConvert.DeserializeObject<forecastResponse>(body);
+                this.forecastRes = (myJObject);
+            }
         }
     }
 
@@ -68,9 +146,97 @@ namespace WeatherDashboard.Pages
     {
         public string id { get; set; }
         public string type { get; set; }
-        public geometryRes geometry { get; set; }
+        public geometryMultiRes geometry { get; set; }
         public propertiesGridPoints properties { get; set; }
     }
+    
+    // used to store /gridpoints/{wfo}/{x},{y}/forecast/hourly
+    public class forecastResponse
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public geometryMultiRes geometry { get; set; }
+
+    }
+
+    /*******************************************
+     *          SHARED DATA CLASSES            *
+     *******************************************/
+
+    public class data
+    {
+        public string uom { get; set; }
+        public temperatureValue[] values { get; set; }
+    }
+
+    public class temperatureValue
+    {
+        public string validTime { get; set; }
+        public string value { get; set; }
+    }
+
+    public class distanceOrBearing
+    {
+        public string unitCode { get; set; }
+        public string value { get; set; }
+    }
+
+   public class geometryRes
+    {
+        public string type { get; set; }
+        public float[] coordinates { get; set; }
+    }
+
+    public class geometryMultiRes
+    {
+        public string type { get; set; }
+        public float[][][] coordinates { get; set; }
+    }
+
+
+
+    /*******************************************
+     *      COORDINATES RESPONSE DATA CLASSES  *
+     *******************************************/
+    public class propertiesSection
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public string cwa { get; set; }
+        public string forecastOffice { get; set; }
+        public string gridId { get; set; }
+        public int gridX { get; set; }
+        public int gridY { get; set; }
+        public string forecast { get; set; }
+        public string forecastHourly { get; set; }
+        public string forecastGridData { get; set; }
+        public string observationStations { get; set; }
+        public relativeLocationSection relativeLocation { get; set; }
+        public string forecastZone { get; set; }
+        public string county { get; set; }
+        public string fireWeatherZone { get; set; }
+        public string timeZone { get; set; }
+        public string radarStation { get; set; }
+    }
+
+    public class relativeLocationSection
+    {
+        public string type { get; set; }
+        public geometryRes geometry { get; set; }
+        public propertiesRes properties { get; set; }
+    }
+
+     public class propertiesRes
+    {
+        public string city { get; set; }
+        public string state { get; set; }
+        public distanceOrBearing distance { get; set; }
+        public distanceOrBearing bearing { get; set; }
+    }
+
+    /*******************************************
+     *      GRID RESPONSE DATA CLASSES         *
+     *******************************************/
 
     public class propertiesGridPoints
     {
@@ -144,7 +310,7 @@ namespace WeatherDashboard.Pages
 
     public class weatherDataList
     {
-        public weatherData values { get; set; }
+        public weatherData [] values { get; set; }
     }
 
     public class weatherData
@@ -165,7 +331,7 @@ namespace WeatherDashboard.Pages
 
     public class hazardDataList
     {
-        public hazardData values { get; set; }
+        public hazardData [] values { get; set; }
     }
 
     public class hazardData
@@ -181,66 +347,38 @@ namespace WeatherDashboard.Pages
         public int event_number { get; set; }
     }
 
-    public class data
+    /*******************************************
+     *      FORECAST RESPONSE DATA CLASSES     * 
+     *******************************************/
+
+    public class forecastProperties
     {
-        public string uom { get; set; }
-        public temperatureValue[] values { get; set; }
+        public string updated {get; set;}
+        public string units {get; set;}
+        public string forecastGenerator {get; set;}
+        public string generatedAt{get; set;}
+        public string updateTime{get; set;}
+        public string validTimes{get; set;}
+        public distanceOrBearing elevation {get; set;}
+        public periodData [] periods {get; set;}
     }
 
-    public class temperatureValue
+    public class periodData
     {
-        public string validTime { get; set; }
-        public float value { get; set; }
+        public int number { get; set; }
+        public string name {get; set;}
+        public string startTime{get; set;}
+        public string endTime{get; set;}
+        public bool isDayTime{get; set;}
+        public int temperature{get; set;}
+        public string temperatureUnit {get; set;}
+        public string temperatureTrend{get; set;}
+        public string windSpeed{get; set;}
+        public string windDirection{get; set;}
+        public string icon {get; set;}
+        public string shortForecast {get; set;}
+        public string detailedForecast {get; set;}
     }
-
-
-
-    public class propertiesSection
-    {
-        public string id { get; set; }
-        public string type { get; set; }
-        public string cwa { get; set; }
-        public string forecastOffice { get; set; }
-        public string gridId { get; set; }
-        public int gridX { get; set; }
-        public int gridY { get; set; }
-        public string forecast { get; set; }
-        public string forecastHourly { get; set; }
-        public string forecastGridData { get; set; }
-        public string observationStations { get; set; }
-        public relativeLocationSection relativeLocation { get; set; }
-        public string forecastZone { get; set; }
-        public string county { get; set; }
-        public string fireWeatherZone { get; set; }
-        public string timeZone { get; set; }
-        public string radarStation { get; set; }
-    }
-
-    public class relativeLocationSection
-    {
-        public string type { get; set; }
-        public geometryRes geometry { get; set; }
-        public propertiesRes properties { get; set; }
-    }
-
-    public class geometryRes
-    {
-        public string type { get; set; }
-        public float[] coordinates { get; set; }
-    }
-
-    public class propertiesRes
-    {
-        public string city { get; set; }
-        public string state { get; set; }
-        public distanceOrBearing distance { get; set; }
-        public distanceOrBearing bearing { get; set; }
-    }
-
-    public class distanceOrBearing
-    {
-        public string unitCode { get; set; }
-        public float value { get; set; }
-    }
+    
 
 }

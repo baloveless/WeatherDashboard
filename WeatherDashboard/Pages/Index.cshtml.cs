@@ -18,27 +18,29 @@ namespace WeatherDashboard.Pages
     {
 
         public coordinatesResponse coordsRes { get; set; }
-        
         public gridResponse gridRes { get; set; }
-
         public forecastResponse forecastRes { get; set; }
         public forecastResponse hourlyRes { get; set; }
+        public ipLocation locationRes { get; set; }
+        public forecastDisplay forecastFormatted { get; set; }
+     
 
         public async Task OnGetAsync()
         {
-            await GetGrid(0, 0);
-            await GetWeather();
-            await GetForecastHourly();
+            await GetLocation();
+            await GetGrid(locationRes.lat, locationRes.lon);
             await GetForecast();
+            await FormatForecast();
         }
 
+        // use geolocation information to get local weather information
         public async Task GetGrid(float lat, float lon)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://api.weather.gov/points/45.5152%2C-122.6784"),
+                RequestUri = new Uri("https://api.weather.gov/points/"+lat+"%2C"+lon),
                 Headers = {
                     { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
                     { "Authority", "api.weather.gov"},
@@ -54,7 +56,7 @@ namespace WeatherDashboard.Pages
             }
 
         }
-    
+
         // get grid must be run before GetWeather can be used
         public async Task GetWeather()
         {
@@ -79,7 +81,7 @@ namespace WeatherDashboard.Pages
                 this.gridRes = (myJObject);
             }
         }
-        
+
         // gets hourly forecast data based on coords res response
         public async Task GetForecastHourly()
         {
@@ -93,7 +95,9 @@ namespace WeatherDashboard.Pages
                 Headers = {
                     { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
                     { "Authority", "api.weather.gov"},
-                    { "User-Agent", "hamrzysko%40gmail.com" }
+                    { "User-Agent", "hamrzysko%40gmail.com" },
+                    { "forecast_temperature_qv", "true"},
+                    { "forecast_wind_speed_qv", "true"},
                 }
             };
             using (var response = await client.SendAsync(request))
@@ -118,7 +122,9 @@ namespace WeatherDashboard.Pages
                 Headers = {
                     { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
                     { "Authority", "api.weather.gov"},
-                    { "User-Agent", "hamrzysko%40gmail.com" }
+                    { "User-Agent", "hamrzysko%40gmail.com" },
+                    { "forecast_temperature_qv", "true"},
+                    { "forecast_wind_speed_qv", "true"},
                 }
             };
             using (var response = await client.SendAsync(request))
@@ -127,6 +133,48 @@ namespace WeatherDashboard.Pages
                 var body = await response.Content.ReadAsStringAsync();
                 var myJObject = JsonConvert.DeserializeObject<forecastResponse>(body);
                 this.forecastRes = (myJObject);
+            }
+        }
+        
+        //formats forecast information for homepage 
+        public async Task FormatForecast()
+        {
+            if (forecastRes == null)
+                return;
+            forecastFormatted = new forecastDisplay();
+            int i = 0;
+            forecastFormatted.days = new wholeDay[7];
+            foreach(periodData period in forecastRes.properties.periods)
+            {
+                if (i % 2 == 0)
+                {
+                    forecastFormatted.days[i / 2] = new wholeDay();
+                    forecastFormatted.days[i / 2].day = new periodData();
+                    forecastFormatted.days[i / 2].day = period;
+                }
+                else {
+                    forecastFormatted.days[i / 2].night = new periodData();
+                    forecastFormatted.days[i / 2].night = period;
+                }
+                i++;
+            }
+        }
+
+        // use geolocation API to find users location
+        public async Task GetLocation()
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri("https://api.techniknews.net/ipgeo"),
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var myJObject = JsonConvert.DeserializeObject<ipLocation>(body);
+                this.locationRes = (myJObject);
             }
         }
     }
@@ -149,14 +197,46 @@ namespace WeatherDashboard.Pages
         public geometryMultiRes geometry { get; set; }
         public propertiesGridPoints properties { get; set; }
     }
-    
+
     // used to store /gridpoints/{wfo}/{x},{y}/forecast/hourly
     public class forecastResponse
     {
         public string id { get; set; }
         public string type { get; set; }
         public geometryMultiRes geometry { get; set; }
+        public forecastProperties properties { get; set; }
+    }
 
+    public class forecastDisplay
+    {
+        public wholeDay [] days { get; set; }
+    }
+
+    public class wholeDay
+    {
+        public periodData day { get; set; }
+        public periodData night { get; set; }
+    }
+
+    public class ipLocation{
+        public string status { get; set; }
+        public string continent { get; set; }
+        public string country { get; set; }
+        public string countryCode { get; set; }
+        public string regionName { get; set; }
+        public string city { get; set; }
+        public string zip { get; set; }
+        public float lat { get; set; }
+        public float lon { get; set; }
+        public string timezone { get; set; }
+        public string currency { get; set; }
+        public string isp { get; set; }
+        public string org { get; set; }
+        public string As { get; set; }
+        public string reverse { get; set; }
+        public bool mobile { get; set; }
+        public bool proxy { get; set; }
+        public string ip { get; set; }
     }
 
     /*******************************************

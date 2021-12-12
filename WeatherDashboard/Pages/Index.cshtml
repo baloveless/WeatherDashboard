@@ -3,7 +3,15 @@
 @{ 
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
-
-<div class="text-center">
-    <p>@Model.coordsRes.properties.relativeLocation.properties.city</p>
+<link rel="stylesheet" href="~/css/homepage.css" />
+<h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
+<div class="forecastContainer">
+    @foreach(wholeDay day in Model.forecastFormatted.days)
+    {
+        <div id="@day.day.name" class="day">        
+            <b class="dayName">@day.day.name</b>
+            <img class="weatherIcon" id="@day.day.name day"src="@day.day.icon" alt="@day.day.shortForecast"/>
+            <p>@day.day.temperatureTrend</p>
+        </div>
+    }
 </div>

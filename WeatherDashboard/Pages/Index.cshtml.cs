@@ -30,6 +30,7 @@ namespace WeatherDashboard.Pages
             await GetLocation();
             await GetGrid(locationRes.lat, locationRes.lon);
             await GetForecast();
+            await GetForecastHourly();
             await FormatForecast();
         }
 
@@ -159,6 +160,8 @@ namespace WeatherDashboard.Pages
                 i++;
             }
         }
+
+
 
         // use geolocation API to find users location
         public async Task GetLocation()

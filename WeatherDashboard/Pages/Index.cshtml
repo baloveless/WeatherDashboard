@@ -3,15 +3,36 @@
 @{ 
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
+
 <link rel="stylesheet" href="~/css/homepage.css" />
 <h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
-<div class="forecastContainer">
-    @foreach(wholeDay day in Model.forecastFormatted.days)
+<div id="forecast" class="hourly">
+    @foreach(periodData period in Model.hourlyRes.properties.periods)
     {
+        <div class="hour">
+            <img class="weatherIcon" src="@period.icon"/>
+            <h2>time</h2>
+            <p>@period.temperature</p>
+        </div> 
+    }
+    
+        
+         
+
+
+</div>
+
+    @foreach(wholeDay day in Model.forecastFormatted.days)
+    {   
+        <!-- Possibly move to a separate tab, going to change formatting to look more like apple weather
         <div id="@day.day.name" class="day">        
             <b class="dayName">@day.day.name</b>
-            <img class="weatherIcon" id="@day.day.name day"src="@day.day.icon" alt="@day.day.shortForecast"/>
-            <p>@day.day.temperatureTrend</p>
-        </div>
+            <img class="weatherIcon" id="@day.day.name"src="@day.day.icon" alt="@day.day.shortForecast"/>
+            <p id="@day.day.name day">@day.day.shortForecast</p>
+            <p id="@day.night.name" hidden>@day.night.shortForecast</p>
+            <p> 
+                <span class="dayTemp"> @day.day.temperature </span>
+                <span class="nightTemp">@day.night.temperature</span>
+            </p>
+        </div>-->
     }
-</div>

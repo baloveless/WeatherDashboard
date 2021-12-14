@@ -3,10 +3,9 @@
 @{ 
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
-
 <link rel="stylesheet" href="~/css/homepage.css" />
 <h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
-<div id="forecast" class="hourly">
+<div id="forecast" class="hourly" active>
     @foreach(periodData period in Model.hourlyRes.properties.periods)
     {
         <div class="hour">
@@ -15,13 +14,16 @@
             <p>@period.temperature</p>
         </div> 
     }
-    
-        
-         
-
-
 </div>
-
+<script>
+    let forecast = document.getElementById("forecast");
+    forecast.addEventListener('scroll', event => {
+        if (event.srcElement.scrollTop == 10)
+            return;
+        event.srcElement.scrollLeft += (-1*(10 - event.srcElement.scrollTop)) * 50;
+        event.srcElement.scrollTop = 10;
+    });
+</script>
     @foreach(wholeDay day in Model.forecastFormatted.days)
     {   
         <!-- Possibly move to a separate tab, going to change formatting to look more like apple weather

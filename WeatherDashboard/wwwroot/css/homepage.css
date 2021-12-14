@@ -58,6 +58,9 @@
     justify-content: center;
 }
 
+.hourly::-webkit-scrollbar{
+    display: none;
+}
 
 
 

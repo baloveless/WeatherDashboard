@@ -8,14 +8,19 @@
 <div id="forecast" class="hourly" active>
     @foreach(periodData period in Model.hourlyRes.properties.periods)
     {
+        string display = period.endTime.Split('T')[1];
+        display = display.Split('-')[0];
+       
         <div class="hour">
             <img class="weatherIcon" src="@period.icon"/>
-            <h2>time</h2>
+            <h2></h2>
+            <p>@display</p>
             <p>@period.temperature</p>
         </div> 
     }
 </div>
 <script>
+
     let forecast = document.getElementById("forecast");
     forecast.addEventListener('scroll', event => {
         if (event.srcElement.scrollTop == 10)

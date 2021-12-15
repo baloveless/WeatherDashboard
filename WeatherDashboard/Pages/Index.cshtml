@@ -1,10 +1,68 @@
 ﻿@page
 @model IndexModel
-@{
-    ViewData["Title"] = "Home page";
+@{ 
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    int i = 0;
 }
+<link rel="stylesheet" href="~/css/homepage.css" />
+<h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
+<div id="forecast" class="hourly">
+    @foreach(periodData period in Model.hourlyRes.properties.periods)
+    {
+        if (i >= 24)
+            break;
+        string display = period.endTime.Split('T')[1];
+        display = display.Split('-')[0];
+        display = display.Split(':')[0];
+        string ampm;
+        int val = int.Parse(display);
+        if (val > 12) {
+            val -= 12;
+            ampm = "pm";
+        } else if (val == 0) {
+            val = 12;
+            ampm = "am";
+        } else if(val < 12) {
+            ampm = "am";
+        } else {
+            ampm = "pm";
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+
+        <div class="hour">
+            @if (i == 0) {
+            <h2>Now</h2>              
+            } else { 
+            <h2>@val @ampm</h2>              
+            }
+            <img class="weatherIcon" src="@period.icon" alt="@period.detailedForecast"/>
+            <p>@period.temperature&#176;</p>
+            <p>@period.shortForecast</p>
+        </div> 
+        i++;
+    }
 </div>
+<div id="weekly" class="forecastContainer">
+    @foreach(wholeDay day in Model.forecastFormatted.days)
+    {   
+        <div id="@day.day.name" class="day">        
+            <b class="dayName">@day.day.name</b>
+            <img class="weekForecastImg" id="@day.day.name"src="@day.day.icon" alt="@day.day.shortForecast"/>
+            <p class="temperatures"> 
+                <span class="dayTemp"> @day.day.temperature </span>
+                <span class="nightTemp">@day.night.temperature</span>
+            </p>
+        </div>
+    }
+</div>
+<script>
+
+    let forecast = document.getElementById("forecast");
+    forecast.addEventListener('scroll', event => {
+        if (event.srcElement.scrollTop == 10)
+            return;
+        event.srcElement.scrollLeft += (-1*(10 - event.srcElement.scrollTop)) * 50;
+        event.srcElement.scrollTop = 10;
+    });
+</script>

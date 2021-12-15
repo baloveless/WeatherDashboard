@@ -2,6 +2,15 @@
     text-align:center;
 }
 
+.currentWeather{
+    font-size:large;
+}
+
+.currentTemperature{
+    font-size: 400%;
+}
+
+
 .forecastContainer{
     width: 100%;
     display: flex;
@@ -15,7 +24,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    width: 60%;
+    width: 70%;
     height: 12.5vh;
     margin: 1px;
     text-align:center;
@@ -24,24 +33,33 @@
 
 .dayName{
    align-self: center; 
-   justify-self: baseline
+   justify-self: baseline;
+   text-align: left;
+   font-size: 1.5em;
+   width: 25%;
 }
 
 .dayTemp{
-    width: max-content;
+    width: 40%;
     text-align:left;
 }
 
 .temperatures{
     justify-self: end;
     align-self: center;
+    text-align: right;
+    font-size: 1.5em;
+    width: 15%;
 }
 
 .nightTemp{
-    width:50%;
+    width: 40%;
     color: dimgray;
     text-align:right;
 }
+
+
+
 
 
 .weatherIcon{
@@ -49,7 +67,7 @@
 }
 
 .weekForecastImg{
-    justify-self: center;
+    justify-items: center;
     align-self: center;
 }
 
@@ -70,7 +88,7 @@
 
 .hour{
     width: 200px;
-    height: 400%;
+    height: 125%;
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
@@ -83,6 +101,23 @@
 }
 
 
-
+@media only screen and (max-width: 414px) {
+    .dayName{
+        font-size: 1.2em;
+    }
+    .temperatures {
+        font-size: 1.2em;
+    }
+    .hour{
+        width: 40%;
+    }
+    .hourly{
+        height: 20vh;
+    }
+    .weatherIcon{
+        height: 30%;
+        width: 80%;
+    }
+}
 
 

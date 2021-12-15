@@ -6,6 +6,8 @@
 }
 <link rel="stylesheet" href="~/css/homepage.css" />
 <h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
+<h2 class="currentWeather text-center">@Model.hourlyRes.properties.periods[0].shortForecast</h2>
+<h2 class="currentTemperature text-center">@Model.hourlyRes.properties.periods[0].temperature&#176;</h2>
 <div id="forecast" class="hourly">
     @foreach(periodData period in Model.hourlyRes.properties.periods)
     {

@@ -23,10 +23,12 @@ namespace WeatherDashboard.Pages
         public forecastResponse hourlyRes { get; set; }
         public ipLocation locationRes { get; set; }
         public forecastDisplay forecastFormatted { get; set; }
+        public string userIp { get; set; }
      
 
         public async Task OnGetAsync()
         {
+            userIp = Request.HttpContext.Connection.RemoteIpAddress.ToString();
             await GetLocation();
             await GetGrid(locationRes.lat, locationRes.lon);
             await GetForecast();
@@ -167,10 +169,12 @@ namespace WeatherDashboard.Pages
         public async Task GetLocation()
         {
             var client = new HttpClient();
+            if (userIp == "::1")
+                userIp = "";
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://api.techniknews.net/ipgeo"),
+                RequestUri = new Uri("https://api.techniknews.net/ipgeo/"+userIp),
             };
             using (var response = await client.SendAsync(request))
             {

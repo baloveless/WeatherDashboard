@@ -6,10 +6,9 @@
     font-size:large;
 }
 
-.currentTemperature{
+.currentTemperature {
     font-size: 400%;
 }
-
 
 .forecastContainer{
     width: 100%;
@@ -58,13 +57,10 @@
 
 .nightTemp{
     width: 2em;
-    color: dimgray;
+    color: #404040;
     justify-self: end;
     align-self: end;
 }
-
-
-
 
 
 .weatherIcon{
@@ -104,6 +100,19 @@
 .hourly::-webkit-scrollbar{
     display: none;
 }
+
+.rain {
+    background: linear-gradient(to bottom, #006476, #dcdcdc 70%);
+}
+
+.snow{
+    background: linear-gradient(to bottom, #686868, #ffffff 70%);
+}
+
+.sunny{
+    background: linear-gradient(to bottom, #ffa500, #bebebe 70%);
+}
+
 
 
 @media only screen and (max-width: 414px) {

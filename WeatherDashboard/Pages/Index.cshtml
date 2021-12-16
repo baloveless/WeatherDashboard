@@ -3,11 +3,12 @@
 @{ 
     Layout = "~/Pages/Shared/_Layout.cshtml";
     int i = 0;
+    periodData currentWeather = Model.hourlyRes.properties.periods[0];
 }
 <link rel="stylesheet" href="~/css/homepage.css" />
 <h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
-<h2 class="currentWeather text-center">@Model.hourlyRes.properties.periods[0].shortForecast</h2>
-<h2 class="currentTemperature text-center">@Model.hourlyRes.properties.periods[0].temperature&#176;</h2>
+<h2 class="currentWeather text-center">@currentWeather.shortForecast</h2>
+<h2 class="currentTemperature text-center">@currentWeather.temperature&#176;</h2>
 <div id="forecast" class="hourly">
     @foreach(periodData period in Model.hourlyRes.properties.periods)
     {
@@ -59,7 +60,6 @@
     }
 </div>
 <script>
-
     let forecast = document.getElementById("forecast");
     forecast.addEventListener('scroll', event => {
         if (event.srcElement.scrollTop == 10)
@@ -67,4 +67,30 @@
         event.srcElement.scrollLeft += (-1*(10 - event.srcElement.scrollTop)) * 50;
         event.srcElement.scrollTop = 10;
     });
+
+    function userLocation() {
+        fetch('https://api.techniknews.net/ipgeo')
+        .then((data) => {
+            return data.json;
+        }).then((res) => {
+            console.log(res);
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+    userLocation();
+
+    function bgWeather(sf) {
+        if (/Fog/.test(sf) || /Showers/.test(sf)|| /Rain/.test(sf) || /Cloudy/.test(sf))  {
+            return "rain";
+        }
+        if (/Snow/.test(sf) || /Sleet/.test(sf)) {
+            return "snow";
+        }
+        if (/Sunny/.test(sf))
+            return "sunny"
+    }
+    let className = bgWeather("@currentWeather.shortForecast");
+    let body = document.getElementsByTagName("body")[0];
+    body.className = className;
 </script>

@@ -4,13 +4,35 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
     int i = 0;
     periodData currentWeather = Model.hourlyRes.properties.periods[0];
+    Feature [] relevantAlert = new Feature[Model.alerts.features.Length];
+    bool hasAlerts = false;
+    foreach (Feature feature in Model.alerts.features)
+    {
+        if (Model.isRelevantAlert(feature.properties.senderName)) {
+            hasAlerts = true;
+            relevantAlert[i] = feature;
+            i++;
+        }
+    }
+    i = 0;
 }
 <link rel="stylesheet" href="~/css/homepage.css" />
 <h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
 <h2 class="currentWeather text-center">@currentWeather.shortForecast</h2>
 <h2 class="currentTemperature text-center">@currentWeather.temperature&#176;</h2>
+@if(hasAlerts)
+{
+    <div class="alert">
+        <h2>ALERT</h2>    
+        @foreach (Feature feature in relevantAlert)
+        { 
+            <p>@feature.properties.urgency @feature.properties.certainty @feature.properties.severity @feature.properties.Event </p>
+            <!--Add page to show more specific alert-->
+        }
+    </div>
+}
 <div id="forecast" class="hourly">
-    @foreach(periodData period in Model.hourlyRes.properties.periods)
+    @foreach (periodData period in Model.hourlyRes.properties.periods)
     {
         if (i >= 24)
             break;
@@ -65,6 +87,14 @@
         </div>
     }
 </div>
+<div id="detailedForecast" class="detailed">
+    @if (Model.forecastFormatted.days[0].day != null)
+    {
+        <p>@Model.forecastFormatted.days[0].day.detailedForecast</p> 
+    }else {
+        <p>@Model.forecastFormatted.days[0].night.detailedForecast</p> 
+    }
+</div>
 <script>
     let forecast = document.getElementById("forecast");
     if (window.innerWidth > 414) {
@@ -77,7 +107,6 @@
         event.srcElement.scrollLeft += (-1*(initScroll - event.srcElement.scrollTop)) * 50;
         event.srcElement.scrollTop = initScroll;
     });
-
 
 
     function bgWeather(sf) {

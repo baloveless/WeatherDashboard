@@ -100,6 +100,33 @@
     flex-direction: column;
     align-items: center;
     justify-items: baseline;
+    font-size: 1.3em;
+}
+
+.detailed{
+    width: 100%;
+    font-size: 1.5em;
+    overflow-wrap: break-word;
+    border: 2px solid gray;
+    border-right: hidden;
+    border-left: hidden;
+}
+
+.alert {
+    color: darkred;
+    background-color: white;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+}
+
+div.alert h2{
+    font-size: 2em;
+}
+
+div.alert p{
+    font-size: 1.5em;
+    color: black;
 }
 
 .hourly::-webkit-scrollbar{

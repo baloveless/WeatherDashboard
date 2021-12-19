@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace WeatherDashboard.Pages
         public forecastResponse hourlyRes { get; set; }
         public ipLocation locationRes { get; set; }
         public forecastDisplay forecastFormatted { get; set; }
+        public alertData alerts { get; set; }
         public string userIp { get; set; }
      
 
@@ -34,6 +36,7 @@ namespace WeatherDashboard.Pages
             await GetForecast();
             await GetForecastHourly();
             await FormatForecast();
+            await CheckHazards();
         }
 
         // use geolocation information to get local weather information
@@ -138,7 +141,8 @@ namespace WeatherDashboard.Pages
                 this.forecastRes = (myJObject);
             }
         }
-        
+       
+        // test this at night to see if it works properly now
         //formats forecast information for homepage 
         public async Task FormatForecast()
         {
@@ -149,17 +153,17 @@ namespace WeatherDashboard.Pages
             forecastFormatted.days = new wholeDay[7];
             foreach(periodData period in forecastRes.properties.periods)
             {
-                if (i % 2 == 0)
+                if (period.isDayTime)
                 {
-                    forecastFormatted.days[i / 2] = new wholeDay();
-                    forecastFormatted.days[i / 2].day = new periodData();
-                    forecastFormatted.days[i / 2].day = period;
+                    forecastFormatted.days[i] = new wholeDay();
+                    forecastFormatted.days[i].day = new periodData();
+                    forecastFormatted.days[i].day = period;
                 }
                 else {
-                    forecastFormatted.days[i / 2].night = new periodData();
-                    forecastFormatted.days[i / 2].night = period;
+                    forecastFormatted.days[i].night = new periodData();
+                    forecastFormatted.days[i].night = period;
+                    i++;
                 }
-                i++;
             }
         }
 
@@ -183,6 +187,36 @@ namespace WeatherDashboard.Pages
                 var myJObject = JsonConvert.DeserializeObject<ipLocation>(body);
                 this.locationRes = (myJObject);
             }
+        }
+        
+        // checks for local weather alerts.
+        public async Task CheckHazards()
+        {
+            var client = new HttpClient();
+            /* https://api.weather.gov/zones/county/ORC051 */
+            string url = coordsRes.properties.county.Replace("zones/county", "alerts/active/zone");
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url),
+                Headers = {
+                    { "Accept", "application/geo+json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" },
+                    { "Authority", "api.weather.gov"},
+                    { "User-Agent", "hamrzysko%40gmail.com" },
+                }
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var myJObject = JsonConvert.DeserializeObject<alertData>(body);
+                this.alerts = (myJObject);
+            }
+        }
+
+        public bool isRelevantAlert(string senderName)
+        {
+            return Regex.Match(senderName, locationRes.city).Success;
         }
     }
 
@@ -466,6 +500,77 @@ namespace WeatherDashboard.Pages
         public string shortForecast {get; set;}
         public string detailedForecast {get; set;}
     }
-    
 
+    /**********************************************
+     ********  ALERTS RESPONSE DATA CLASSES *******
+     *********************************************/
+    public class alertData
+    {
+        public string type  {get; set;}
+        public Feature[] features  {get; set;}
+        public string title { get; set; }
+        public string updated { get; set; }
+    }
+
+    public class Feature
+    {
+        public string id { get; set; }
+        public string type  {get; set;}
+        public alertProperties properties { get; set; }
+    }
+
+    public class alertProperties
+    {
+        public string id {get; set;}
+        public string areaDesc {get; set;}
+        public alertGeocode geocode { get; set; }   
+        public string [] affectedZones { get; set; }
+        public Reference [] references { get; set; }
+        public string sent { get; set; }
+        public string effective { get; set; }
+        public string onset { get; set; }
+        public string expires { get; set; }
+        public string ends { get; set; }
+        public string status { get; set; }
+        public string messageType { get; set; }
+        public string category { get; set; }
+        public string severity { get; set; }
+        public string certainty { get; set; }
+        public string urgency { get; set; }
+        public string Event { get; set; }
+        public string sender { get; set; }
+        public string senderName { get; set; }
+        public string headline { get; set; }
+        public string description { get; set; }
+        public string instruction { get; set; }
+        public string response  { get; set; }
+        public Parameters parameters { get; set; }
+        
+    }
+
+    public class alertGeocode
+    {
+        public string[] SAME  {get; set;}
+        public string[] UGC {get; set;}
+    }
+
+    public class Reference
+    {
+        public string identifier { get; set; }
+        public string sender { get; set;  }
+        public string sent { get; set; }
+    }
+
+    public class Parameters
+    {
+        public string[] AWIPSidentifier { get; set; }
+        public string[] WMOidentifier  { get; set; }
+        public string[] NWSheadline{ get; set; }
+        public string[] BLOCKCHANNEL{ get; set; }
+        public string[] EASORG{ get; set; }
+        public string[] VTEC{ get; set; }
+        public string[] eventEndingTime { get; set; }
+        public string[] expiredReferences { get; set; }
+
+    }
 }

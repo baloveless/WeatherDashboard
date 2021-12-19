@@ -83,7 +83,7 @@
     align-items: center;
     flex-wrap: nowrap;
     overflow: auto;
-    border: 2px solid gray;
+    border: 2px solid darkgray;
     border-right: hidden;
     border-left: hidden;
     overflow-wrap: break-word;
@@ -116,8 +116,11 @@
     color: darkred;
     background-color: white;
     border-radius: 15px;
-    padding: 15px;
+    padding: 5px;
     text-align: center;
+    margin: auto;
+    margin-bottom: 10px;
+    width: 70%;
 }
 
 div.alert h2{
@@ -127,6 +130,7 @@ div.alert h2{
 div.alert p{
     font-size: 1.5em;
     color: black;
+    padding: 1px;
 }
 
 .hourly::-webkit-scrollbar{

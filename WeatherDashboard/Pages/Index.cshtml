@@ -22,12 +22,12 @@
 <h2 class="currentTemperature text-center">@currentWeather.temperature&#176;</h2>
 @if(hasAlerts)
 {
-    <div class="alert">
+    <div class="alert container">
         <h2>ALERT</h2>    
         @foreach (Feature feature in relevantAlert)
-        { 
-            <p>@feature.properties.urgency @feature.properties.certainty @feature.properties.severity @feature.properties.Event </p>
-            <!--Add page to show more specific alert-->
+        {
+            string link = "/Alert/" + feature.properties.id;
+            <a class="text-dark" href= "@link"><p> @feature.properties.urgency @feature.properties.certainty @feature.properties.severity @feature.properties.Event</p></a>
         }
     </div>
 }
@@ -107,6 +107,10 @@
         event.srcElement.scrollLeft += (-1*(initScroll - event.srcElement.scrollTop)) * 50;
         event.srcElement.scrollTop = initScroll;
     });
+
+    function getUrl(id) {
+        return (window.URL + "/" + id);
+    }
 
 
     function bgWeather(sf) {

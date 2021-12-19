@@ -1,0 +1,33 @@
+﻿span.text{
+    width: 50%;
+    font-size: 1.5em;
+}
+
+span.title{
+    width: 50%;
+    font-size: 2.5em;
+}
+
+p{
+    display: flex;
+    text-align:left;
+    justify-content:space-between;
+    align-items:center;
+}
+
+h1{
+    text-align: center;
+    border-bottom: 5px solid darkgray;
+    padding-bottom: .5em;
+}
+
+.instructions{
+    text-align: center;
+    width: 80%;
+    margin: auto;
+}
+
+.instruct{
+    text-align:center;
+    margin: auto;
+}

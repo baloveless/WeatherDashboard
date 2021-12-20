@@ -2,7 +2,8 @@
 @model WeatherDashboard.Pages.AlertModel
 @{
     string[] description = Model.alert.properties.description.Split('*');
-    string[] separatedInstructions = Model.alert.properties.instruction.Split('\n');
+    string[] separatedInstructions = Model.alert.properties.instruction.Split("\n\n");
+    string[] urls = null;
 }
 <link rel="stylesheet" href="~/css/alert.css" />
 <h1>@Model.alert.properties.headline</h1>
@@ -14,8 +15,8 @@
     }
 }
 <div class="instructions">
-@foreach(string item in separatedInstructions)
-{
-    <p class="instruct">@Model.extractUrl(item)</p>
-}
+    @foreach (string item in separatedInstructions)
+    {
+        <p class="instruct">@Model.extractUrl(item)</p>
+    }
 </div>

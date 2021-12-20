@@ -22,12 +22,11 @@ h1{
 }
 
 .instructions{
-    text-align: center;
+    text-align: end;
     width: 80%;
     margin: auto;
 }
 
 .instruct{
-    text-align:center;
     margin: auto;
 }

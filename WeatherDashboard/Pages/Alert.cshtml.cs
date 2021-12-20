@@ -46,8 +46,14 @@ namespace WeatherDashboard.Pages
         public string extractUrl(string from)
         {
             Regex urlFinder = new Regex(@"^(http:\/\/www\.|https:\/\/www\.| http:\/\/| https:\/\/)?[a-z0 - 9]+([\-\.]{ 1}[a-z0 - 9]+)*\.[a-z]{ 2,5}(:[0 - 9]{1,5})?(\/.*)?$");
-            string url = urlFinder.Match(from).Value;
-            return urlFinder.Replace(from, "<a class ='text-dark' href='" + url + "'>" + url + "</a>");
+            string ret = from.Replace('\n', ' ');
+            while (urlFinder.IsMatch(ret))
+            {
+                string url = urlFinder.Match(ret).ToString();
+                string link = "<a class ='text-dark' href='" + url + "'>" + url + "</a>";
+                ret = urlFinder.Replace(url, link);
+            }
+            return ret; 
         }
     }
 }

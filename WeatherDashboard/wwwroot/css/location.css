@@ -1,0 +1,25 @@
+﻿form{
+    display: block;
+    width:100%;
+    text-align: center;
+}
+
+body{
+    text-align: center;
+}
+
+label{
+    width: 100%;
+    display: block;
+}
+
+input, select{
+    width: 100%;
+    display: block;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+button{
+    margin: auto;
+}

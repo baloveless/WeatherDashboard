@@ -26,13 +26,16 @@ namespace WeatherDashboard.Pages
         public forecastDisplay forecastFormatted { get; set; }
         public alertData alerts { get; set; }
         public string userIp { get; set; }
-     
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string Coordinates)
         {
-            userIp = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-            await GetLocation();
-            await GetGrid(locationRes.lat, locationRes.lon);
+            if (Coordinates == null)
+            {
+                userIp = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+                await GetLocation();
+                await GetGrid(locationRes.lat, locationRes.lon);
+            } else 
+                await GetGrid(45, -122); // get coords from input string
             await GetForecast();
             await GetForecastHourly();
             await FormatForecast();
@@ -42,6 +45,9 @@ namespace WeatherDashboard.Pages
         // use geolocation information to get local weather information
         public async Task GetGrid(float lat, float lon)
         {
+            /* for debugging */
+            lat = 45;
+            lon = -122;
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
@@ -193,7 +199,6 @@ namespace WeatherDashboard.Pages
         public async Task CheckHazards()
         {
             var client = new HttpClient();
-            /* https://api.weather.gov/zones/county/ORC051 */
             string url = coordsRes.properties.county.Replace("zones/county", "alerts/active/zone");
             var request = new HttpRequestMessage
             {
@@ -214,10 +219,6 @@ namespace WeatherDashboard.Pages
             }
         }
 
-        public bool isRelevantAlert(string senderName)
-        {
-            return Regex.Match(senderName, locationRes.city).Success;
-        }
     }
 
     // used to store /points/{latitude},{longitude} requests

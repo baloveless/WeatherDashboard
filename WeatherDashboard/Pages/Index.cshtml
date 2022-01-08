@@ -1,30 +1,19 @@
-﻿@page
+﻿@page "{Coordinates?}"
 @model IndexModel
 @{ 
     Layout = "~/Pages/Shared/_Layout.cshtml";
     int i = 0;
     periodData currentWeather = Model.hourlyRes.properties.periods[0];
-    Feature [] relevantAlert = new Feature[Model.alerts.features.Length];
-    bool hasAlerts = false;
-    foreach (Feature feature in Model.alerts.features)
-    {
-        if (Model.isRelevantAlert(feature.properties.senderName)) {
-            hasAlerts = true;
-            relevantAlert[i] = feature;
-            i++;
-        }
-    }
-    i = 0;
 }
 <link rel="stylesheet" href="~/css/homepage.css" />
 <h1>@Model.locationRes.city, @Model.locationRes.regionName (@Model.locationRes.countryCode)</h1>
 <h2 class="currentWeather text-center">@currentWeather.shortForecast</h2>
 <h2 class="currentTemperature text-center">@currentWeather.temperature&#176;</h2>
-@if(hasAlerts)
+@if(Model.alerts.features.Length > 0)
 {
     <div class="alert container">
         <h2>ALERT</h2>    
-        @foreach (Feature feature in relevantAlert)
+        @foreach (Feature feature in Model.alerts.features)
         {
             string link = "/Alert/" + feature.properties.id;
             <a class="text-dark" href= "@link"><p> @feature.properties.urgency @feature.properties.certainty @feature.properties.severity @feature.properties.Event</p></a>

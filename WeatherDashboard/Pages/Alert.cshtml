@@ -17,6 +17,25 @@
 <div class="instructions">
     @foreach (string item in separatedInstructions)
     {
-        <p class="instruct">@Model.extractUrl(item)</p>
+        <p class="instruct"></p>
+        <script>
+        </script>
     }
 </div>
+<script>
+    function extractUrl(from) {
+        return use.exec(from)
+    }
+
+    let instructs = document.getElementsByClassName("instruct");
+    let use = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0 - 9]+([\-\.]{ 1}[a-z0 - 9]+)*\.[a-z]{ 2,5}(:[0 - 9]{1,5})?(\/.*)?$/;
+    let len = instructs.length;
+    for (i = 0; i < len; i++) {
+        instructs[i].innerText = instructs[i].innerText.Replace('\n', ' ');
+        let urls = use.exec(instructs[i].innerText);
+        for (x = 0; x < urls.length; x++) {
+            instructs[i].innerHTML = instructs[i].innerHTML.replace(urls[x], "<a class ='text-dark' href='" + urls[x] + "'>" + urls[x] + "</a>")
+        }
+    }
+
+</script>

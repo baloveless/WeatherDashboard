@@ -1,0 +1,43 @@
+﻿@page "{Location?}"
+@model WeatherDashboard.Pages.LocationModel
+@{
+
+
+}
+
+<link rel="stylesheet" href="~/css/location.css" />
+
+@if (Model.searchString == null)
+{
+    <h1>Change Location</h1>
+    <p>Change your location by searchinng for US cities below</p>
+    <form id="locationChange" method="get">
+        <label for="newLocation">
+            Input must be 4 characters or longer
+        </label>
+        <input type="textarea" id="searchLocation" name="location" />
+        <button class="btn btn-block btn-lg btn-primary" value="submit" id="submit">Search</button>
+    </form>
+}
+else
+{
+<h1>Search Results</h1>
+
+<form id="results" method="post">
+    <select class="form-select" id="city" name="city">
+        @foreach (city curr in Model.cities)
+        {
+            if (curr != null)
+            {
+                string val = @curr.lat + "%2C" + @curr.lng;
+                <option value="@val">@curr.name, @curr.state_id</option>
+            }
+        }
+    </select>
+    <button class="btn btn-block btn-lg btn-secondary" id="back">Return To Search</button>
+    <button class="btn btn-block btn-lg btn-success" value="Submit" type="submit" id="submit">Change location</button>
+</form>
+}
+<!--add census site link-->
+<script defer src="~/js/location.js"></script>
+
